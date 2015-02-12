@@ -1,5 +1,5 @@
-class WebBot
-  @source_id = '5339108d1d0aab8c0a000001'
+#class WebBot
+@source_id = '5339108d1d0aab8c0a000001'
 @group = '44'
 
 def proxy_ok?
@@ -120,7 +120,7 @@ def get_address
 end
 
 def tender_is_empty?
-  true if at_xpath('//*[starts-with(text(),"Извещение")]') == nil
+  true if at_xpath('//b[starts-with(text(),"Общая информация")]') == nil
 end
 
-end
+#end

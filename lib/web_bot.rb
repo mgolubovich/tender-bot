@@ -5,14 +5,17 @@ require 'active_record'
 require 'active_support'
 require 'yaml'
 require 'open-uri'
+require './lib/dsl.rb'
 
 
 class WebBot
-  
+
+  include Dsl
   extend Forwardable
   def_delegators(:@doc, :css, :at_css, :xpath, :at_xpath)
 
   def initialize list_file_name
+    fields = {}
     @list_name = list_file_name
     load "./lists/#{list_file_name}.rb"
     #p @source_name
@@ -43,10 +46,7 @@ class WebBot
     require './models/tender_int.rb'
   end
 
-  def log msg
-    @logger.info msg
-    puts Time.new.strftime"%Y-%m-%d_%H-%M-%S" + '  ' + msg
-  end
+  
 
   def update_proxy_list 
     log "Получаем список прокси с hideme"
@@ -105,6 +105,10 @@ class WebBot
     end
     next_proxy
     get link
+  end
+
+  def collect_entity start_url
+    log "Starting to collect entity #{@entity_name}"
   end
 
   def get_tender
