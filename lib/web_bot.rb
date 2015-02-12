@@ -6,6 +6,7 @@ require 'active_support'
 require 'yaml'
 require 'open-uri'
 require './lib/dsl.rb'
+require 'forwardable'
 
 
 class WebBot
@@ -64,11 +65,10 @@ class WebBot
   end
 
   def next_proxy
-    log "Переключаем прокси"
+    log "Switch to next proxy"
     @driver.quit if @driver
-    @current_proxy_index += 1
     if @current_proxy_index == @proxy_list.count
-      log "Дошли до конца списка прокси, перезапрашиваем"
+      log "Hit the ground, updating proxy list"
       update_proxy_list
       next_proxy
     else
@@ -82,7 +82,8 @@ class WebBot
       @driver = Selenium::WebDriver.for :firefox, :profile => profile
       @driver.manage.timeouts.implicit_wait = 30
       @driver.manage.timeouts.page_load = 30
-      log "Создали драйвер с прокси #{proxy_address}"
+      @current_proxy_index += 1
+      log "Created driver with proxy #{proxy_address}"
     end
   end
 
@@ -117,7 +118,7 @@ class WebBot
 
   def get_tender
     log "создаю объект модели TenderInt"
-    tender = TenderInt.new
+    tender = TenderInt.find_or_initialize_by(:link => @driver.current_url)
     log "забираю тендер площадки #{self.class.name}, по адресу #{@driver.current_url}"
     if tender_is_empty? then
       log 'тендер пуст'
@@ -148,7 +149,7 @@ class WebBot
     log 'документы'
     tender.okdps = get_okdps
     log 'тендер заполнен'
-    log tender.to_s
+    tender.save
   end
 
 end

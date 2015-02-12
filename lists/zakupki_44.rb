@@ -102,14 +102,14 @@ def get_customer_inn
 end
 
 def get_okdps
-  #okdp_key = @driver.find_element(xpath: '//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[2]').text.strip
-  #log 'взят ключ'
-  #okdp_title = @driver.find_element(xpath: '//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[1]').text.strip
-  #okdps = {}
-  #okdps[okdp_key] = okdp_title
-  #log okdps.to_s
-  #okdps.to_json
-  nil
+  return nil if @driver.find_elements(xpath: '//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[2]').empty?
+  okdp_key = @driver.find_element(xpath: '//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[2]').text.strip
+  log 'взят ключ'
+  okdp_title = @driver.find_element(xpath: '//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[1]').text.strip
+  okdps = {}
+  okdps[okdp_key] = okdp_title
+  log okdps.to_s
+  okdps.to_json
 end
 
 def get_documents
