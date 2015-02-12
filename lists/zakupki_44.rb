@@ -102,13 +102,14 @@ def get_customer_inn
 end
 
 def get_okdps
-  okdp_key = @driver.find_element(xpath: '//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[2]').text.strip
-  log 'взят ключ'
-  okdp_title = @driver.find_element(xpath: '//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[1]').text.strip
-  okdps = {}
-  okdps[okdp_key] = okdp_title
-  log okdps.to_s
-  okdps.to_json
+  #okdp_key = @driver.find_element(xpath: '//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[2]').text.strip
+  #log 'взят ключ'
+  #okdp_title = @driver.find_element(xpath: '//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[1]').text.strip
+  #okdps = {}
+  #okdps[okdp_key] = okdp_title
+  #log okdps.to_s
+  #okdps.to_json
+  nil
 end
 
 def get_documents
@@ -116,7 +117,7 @@ def get_documents
 end
 
 def get_address
-  at_xpath('//*[text()="Почтовый адрес"]/following::*[1]').content
+  at_xpath('//*[text()="Почтовый адрес"]/following::*[1]').content if at_xpath('//*[text()="Почтовый адрес"]/following::*[1]')
 end
 
 def tender_is_empty?

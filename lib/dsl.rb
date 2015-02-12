@@ -1,9 +1,4 @@
 module Dsl
-  def log msg
-    @logger.info msg
-    puts Time.new.strftime"%Y-%m-%d_%H-%M-%S" + '  ' + msg
-  end
-
   def field(name, &block)
     @field_value = nil
     log "Start to take field #{name}"

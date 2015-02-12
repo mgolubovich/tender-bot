@@ -10,12 +10,11 @@ require './lib/dsl.rb'
 
 class WebBot
 
-  include Dsl
+  #include Dsl
   extend Forwardable
   def_delegators(:@doc, :css, :at_css, :xpath, :at_xpath)
 
   def initialize list_file_name
-    fields = {}
     @list_name = list_file_name
     load "./lists/#{list_file_name}.rb"
     #p @source_name
@@ -29,7 +28,8 @@ class WebBot
 
   def run min_seconds
     log "Start running bot for #{min_seconds} seconds minimum"
-    run_until = DateTime.now + min_seconds
+    run_until = (DateTime.now + min_seconds.seconds).to_datetime
+    log run_until.to_s
     ids = get_last_ids
     last_id = ids[:last_id]
     link = ids[:link]
@@ -38,6 +38,7 @@ class WebBot
       get_tender
       last_id -= 1
     end
+    @driver.quit if @driver
   end
 
   def init_db
@@ -46,7 +47,10 @@ class WebBot
     require './models/tender_int.rb'
   end
 
-  
+  def log msg
+    @logger.info msg
+    puts Time.new.strftime"%Y-%m-%d_%H-%M-%S" + '  ' + msg
+  end
 
   def update_proxy_list 
     log "Получаем список прокси с hideme"
