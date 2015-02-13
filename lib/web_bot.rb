@@ -71,7 +71,10 @@ class WebBot
 
   def next_proxy
     log "Switch to next proxy"
-    @driver.quit if @driver
+    if @driver 
+      @driver.quit
+      @driver = nil
+    end
     if @current_proxy_index == @proxy_list.count
       log "Hit the ground, updating proxy list"
       update_proxy_list
