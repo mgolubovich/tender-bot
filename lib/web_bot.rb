@@ -27,17 +27,22 @@ class WebBot
     next_proxy
   end
 
-  def run min_seconds
-    log "Start running bot for #{min_seconds} seconds minimum"
-    run_until = (DateTime.now + min_seconds.seconds).to_datetime
+  def run minutes
+    log "Start running bot for #{minutes} seconds minimum"
+    run_until = (DateTime.now + minutes.minutes).to_datetime
     log run_until.to_s
     ids = get_last_ids
     last_id = ids[:last_id]
     link = ids[:link]
     while run_until > DateTime.now do
-      get link + last_id.to_s
-      get_tender
-      last_id -= 1
+      begin
+        get link + last_id.to_s
+        get_tender
+        last_id -= 1
+      rescue
+        last_id -= 1
+        next
+      end
     end
     @driver.quit if @driver
   end
@@ -80,8 +85,8 @@ class WebBot
         :ssl      => proxy_address
         )
       @driver = Selenium::WebDriver.for :firefox, :profile => profile
-      @driver.manage.timeouts.implicit_wait = 30
-      @driver.manage.timeouts.page_load = 30
+      @driver.manage.timeouts.implicit_wait = 20
+      @driver.manage.timeouts.page_load = 20
       @current_proxy_index += 1
       log "Created driver with proxy #{proxy_address}"
     end
@@ -146,10 +151,12 @@ class WebBot
     tender.address = get_address
     tender.status_key = get_status_key
     tender.documents = get_documents
+    tender.created = DateTime.now
     log 'документы'
     tender.okdps = get_okdps
     log 'тендер заполнен'
     tender.save
+    log tender.attributes.to_s
   end
 
 end

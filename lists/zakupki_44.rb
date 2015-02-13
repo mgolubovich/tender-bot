@@ -29,7 +29,7 @@ def get_title
 end
 
 def get_code
-  at_xpath('//*[text()="Номер извещения"]/following::*[1]').content.strip
+  at_xpath('//*[text()="Номер извещения"]/following::*[1]').content.strip if at_xpath('//*[text()="Номер извещения"]/following::*[1]')
 end
 
 def get_start_at
