@@ -28,7 +28,7 @@ class WebBot
   end
 
   def run minutes
-    log "Start running bot for #{minutes} seconds minimum"
+    log "Start running bot for #{minutes} minutes minimum"
     run_until = (DateTime.now + minutes.minutes).to_datetime
     log run_until.to_s
     ids = get_last_ids
@@ -44,7 +44,7 @@ class WebBot
         next
       end
     end
-    @driver.quit if @driver
+    @driver.close if @driver
   end
 
   def init_db
@@ -71,7 +71,7 @@ class WebBot
 
   def next_proxy
     log "Switch to next proxy"
-    @driver.quit if @driver
+    @driver.close if @driver
     if @current_proxy_index == @proxy_list.count
       log "Hit the ground, updating proxy list"
       update_proxy_list
