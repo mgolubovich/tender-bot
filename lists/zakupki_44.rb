@@ -102,7 +102,7 @@ def get_customer_inn
 end
 
 def get_okdps
-  return nil if @driver.find_elements(xpath: '//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[2]').empty?
+  return nil unless at_xpath('//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[2]')
   okdp_key = @driver.find_element(xpath: '//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[2]').text.strip
   log 'взят ключ'
   okdp_title = @driver.find_element(xpath: '//td[text()="Код по ОКПД"]/ancestor::tbody[1]/tr[3]/td[1]').text.strip
