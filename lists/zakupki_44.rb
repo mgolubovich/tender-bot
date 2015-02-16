@@ -92,7 +92,7 @@ end
 
 def get_customer
   at_xpath('//*[text()="Организация, осуществляющая закупку"]/following::*[1]').content if at_xpath('//*[text()="Организация, осуществляющая закупку"]/following::*[1]')
-  at_xpath('//*[text()="Закупку осуществляет"]/following::*[1]').content if at_xpath('//*[text()="Закупку осуществляет"]/following::*[1]')
+  at_xpath('//*[text()="Наименование организации"]/following::*[1]').content if at_xpath('//*[text()="Наименование организации"]/following::*[1]')
 end
 
 def get_customer_inn
