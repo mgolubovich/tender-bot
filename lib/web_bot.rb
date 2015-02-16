@@ -135,8 +135,8 @@ class WebBot
     tender.site_name = self.class.name
     log 'ссылка'
     tender.link = @driver.current_url
-    tender.group = @group
-    tender.source_id = @source_id
+    tender.group = group
+    tender.source_id = source_id
     tender.title = get_title
     tender.code = get_code
     log 'код'

@@ -1,6 +1,6 @@
 #class WebBot
-@source_id = '5339108d1d0aab8c0a000001'
-@group = '44'
+def source_id; '5339108d1d0aab8c0a000001' end
+def group; '44' end
 
 def proxy_ok?
   if at_xpath("//*[contains(text(),'Перейти на главную страницу')]") or 
