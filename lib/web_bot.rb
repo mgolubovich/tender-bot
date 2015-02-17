@@ -1,16 +1,7 @@
-require 'selenium-webdriver'
-require 'nokogiri'
-require 'logger'
-require 'active_record'
-require 'active_support'
-require 'yaml'
-require 'open-uri'
-require './lib/dsl.rb'
-require 'forwardable'
-
+require_relative 'dsl'
+require_relative 'work_type_processor'
 
 class WebBot
-
   #include Dsl
   extend Forwardable
   def_delegators(:@doc, :css, :at_css, :xpath, :at_xpath)
@@ -21,8 +12,7 @@ class WebBot
     #p @source_name
     #load "./sources/#{@source_name}.rb"
     #load "/#{list_file}.rb"
-    @logger = Logger.new("logs/#{list_file_name}.log", 0, 60 * 1024 * 1024)
-    init_db
+    @logger = Logger.new("logs/#{list_file_name}.log", 10, 60 * 1024 * 1024)
     update_proxy_list
     next_proxy
   end
@@ -45,12 +35,6 @@ class WebBot
       end
     end
     @driver.quit if @driver
-  end
-
-  def init_db
-    ActiveRecord::Base.logger = @logger
-    #ActiveRecord::Base.establish_connection(db_config)
-    require './models/tender_int.rb'
   end
 
   def log msg
@@ -125,41 +109,54 @@ class WebBot
   end
 
   def get_tender
-    log "создаю объект модели TenderInt"
-    tender = TenderInt.find_or_initialize_by(:link => @driver.current_url)
-    log "забираю тендер площадки #{self.class.name}, по адресу #{@driver.current_url}"
     if tender_is_empty? then
       log 'тендер пуст'
       return nil
     end
-    tender.site_name = self.class.name
-    log 'ссылка'
-    tender.link = @driver.current_url
+    log "забираю тендер площадки #{@list_name}: #{get_code}, по адресу #{@driver.current_url}"
+    tender = Tender.find_or_create_by(code_by_source: get_code, source_id: source_id)
+    tender.source_link = @driver.current_url
+    log "ссылка #{tender.source_link}"
     tender.group = group
-    tender.source_id = source_id
+    log "group #{tender.group}"
     tender.title = get_title
-    tender.code = get_code
-    log 'код'
+    log "title #{tender.title}"
     tender.start_at = get_start_at
-    log 'дата начала'
+    log "дата начала #{tender.start_at.to_s}"
     tender.start_price = get_start_price
-    tender.public_at = get_public_at
-    log 'дата публикации'
+    log "start_price #{tender.start_price.to_s}"
+    tender.published_at = get_public_at
+    log "дата публикации #{tender.published_at.to_s}"
     tender.tender_form = get_tender_form
-    log 'форма тендера'
-    tender.status = get_status
-    log 'статус'
-    tender.customer = get_customer
+    log "форма тендера #{tender.tender_form}"
+    tender.customer_name = get_customer
+    log "customer_name #{tender.customer_name}"
     tender.customer_inn = get_customer_inn
-    tender.address = get_address
-    tender.status_key = get_status_key
-    tender.documents = get_documents
-    tender.created = DateTime.now
+    log "customer_inn #{tender.customer_inn}"
+    tender.customer_address = get_address
+    log "address #{tender.customer_address}"
+    if get_documents
+      mysql_doc = JSON.parse(get_documents)
+      documents = []
+      mysql_doc.each_pair do |title, link|
+        documents << {"doc_title" => title, "doc_link" => link}
+      end
+      tender.documents = documents
+    end
     log 'документы'
-    tender.okdps = get_okdps
+    if get_okdps
+      mysql_okdps = JSON.parse(get_okdps)
+      work_type = []
+      mysql_okdps.each_pair do |code, title|
+        work_type << {"code" => code, "title" => title}
+      end
+      tender.work_type = work_type
+    end
+    log 'work_type'
+    tender.external_work_type = WorkTypeProcessor.new(tender.work_type).process
     log 'тендер заполнен'
     tender.save
-    log tender.attributes.to_s
+    log "external_db_id #{tender.external_db_id}"
   end
 
 end

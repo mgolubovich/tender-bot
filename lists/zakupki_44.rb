@@ -1,6 +1,8 @@
 #class WebBot
 def source_id; '5339108d1d0aab8c0a000001' end
-def group; '44' end
+def group
+ :'44' 
+end
 
 def proxy_ok?
   if at_xpath("//*[contains(text(),'Перейти на главную страницу')]") or 
@@ -15,7 +17,7 @@ end
 
 def get_last_ids
   log 'Открываем основной список zakupki'
-  get('http://zakupki.gov.ru/epz/order/quicksearch/search.html?searchString=')
+  get('http://zakupki.gov.ru/epz/order/quicksearch/update.html?placeOfSearch=FZ_44&_placeOfSearch=on&_placeOfSearch=on&_placeOfSearch=on&priceFrom=0&priceTo=200+000+000+000&publishDateFrom=&publishDateTo=&updateDateFrom=&updateDateTo=&orderStages=AF&_orderStages=on&orderStages=CA&_orderStages=on&_orderStages=on&_orderStages=on&sortDirection=false&sortBy=PUBLISH_DATE&recordsPerPage=_10&pageNo=1&searchString=&strictEqual=false&morphology=false&showLotsInfo=false&isPaging=false&isHeaderClick=&checkIds=')
   log 'Берем верхний id zakupki'
   get @driver.find_element(xpath:'//a[contains(@href,"44/view/doc")]').attribute('href')
   link = 'http://zakupki.gov.ru/epz/order/printForm/view.html?printFormId='

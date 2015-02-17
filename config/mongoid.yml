@@ -1,0 +1,6 @@
+development:
+  sessions:
+    default:
+      database: crawler
+      hosts:
+        - 10.0.105.15:27017

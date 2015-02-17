@@ -1,0 +1,134 @@
+# Basically - result of parsing
+class Tender
+  include Mongoid::Document
+  include Mongoid::Timestamps
+  include ActiveSupport::Callbacks
+
+  belongs_to :source
+  has_many :protocols
+
+  set_callback :save, :before, :before_save
+
+  class << self
+    attr_accessor :data_fields_list
+    attr_accessor :default_values_fields_list
+  end
+
+  @data_fields_list = [
+      :id_by_source,
+      :code_by_source,
+      :title,
+      :start_price,
+      :tender_form,
+      :customer_name,
+      :customer_inn,
+      :customer_address,
+      :work_type,
+      :documents
+  ]
+
+  @default_values_fields_list = [
+      :title,
+      :start_price,
+      :tender_form,
+      :customer_name,
+      :customer_inn,
+      :customer_address,
+      :external_work_type,
+      :group
+  ]
+
+
+  # Timestamps, created_at and updated_at included via mongoid
+  field :start_at, type: Time
+  field :published_at, type: Time
+  field :moderated_at, type: Time
+  field :modified_at, type: Time
+
+  # Source info
+  # Code of tender based on source
+  field :code_by_source, type: String
+
+  # ID of tender on source-site
+  field :id_by_source, type: String
+
+  # Original link
+  field :source_link, type: String
+
+  # Group of tender (44, 223, bankrupt)
+  field :group, type: Symbol
+
+  # Actual tender info
+  field :title, type: String
+  field :start_price, type: Float
+  field :tender_form, type: String
+  field :customer_name, type: String
+  field :customer_address, type: String
+  field :customer_inn, type: String
+  field :work_type, type: Array
+  field :documents, type: Array
+  field :has_winner, type: Boolean
+
+  # Fields for MySQL integration
+  # Category of tender 0-5. Magic numbers. 0 - not needed. -1 - failed
+  field :external_work_type, type: Integer
+
+  # ID based on altasib_kladr_cities table
+  field :external_city_id, type: Integer
+  field :city_code, type: Integer
+
+  # ID based on altasib_kladr_region
+  field :external_region_id, type: Integer
+  field :region_code, type: Integer
+
+  # Not used tight now
+  # field :external_db_id, type: Integer
+  auto_increment :external_db_id
+
+  field :status, type: Hash
+  field :created_by, type: Symbol, default: :parser
+
+  index({ source_id: 1, code_by_source: 1 }, { unique: true })
+  index({ external_db_id: 1 }, { unique: true })
+  index({ has_winner: 1 }, { sparse: true })
+
+  def data_attr
+    attrs = attributes.symbolize_keys
+    attrs[:documents].map! { |d| d.symbolize_keys! } unless attrs[:documents].nil?
+    attrs[:work_type].map! { |w| w.symbolize_keys! } unless attrs[:work_type].nil?
+    attrs.select { |k| Tender.data_fields_list.include?(k) }
+  end
+
+  def md5
+    Digest::MD5.hexdigest(data_attr.to_s)
+  end
+
+  def is_valid?
+    self[:title].to_s.empty? ? false : true
+  end
+
+  def before_save
+    self[:code_by_source] = self[:id_by_source] if self[:code_by_source].to_s.empty?
+    default_values
+  end
+
+  def default_values
+    cartridge = source.cartridges.where(tender_type: group).first
+    return nil if cartridge.nil? || cartridge.default_tender_values.to_s.empty?
+
+    cartridge.default_tender_values.each do |field, value|
+      self[field.to_sym] = value if attributes[field].to_s.empty?
+    end
+  end
+
+  def load_default_values
+    cartridge = source.cartridges.first
+    return nil if cartridge.nil? || cartridge.default_tender_values.to_s.empty?
+
+    cartridge.default_tender_values.each do |field, value|
+      self[field.to_sym] = value if attributes[field.to_sym].to_s.empty?
+    end
+  end
+
+
+end

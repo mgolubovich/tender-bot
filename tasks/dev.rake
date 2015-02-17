@@ -7,6 +7,6 @@ namespace :dev do
   end
 
   task :test do
-    WebBot.new('zakupki_44').run 6000
+    WebBot.new('zakupki_44').run 10
   end
 end
