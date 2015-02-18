@@ -4,7 +4,7 @@ def source_id; '5370b311a4c6e92e86000001' end
 def group; :'44' end
 
 def proxy_ok?
-  #byebug
+  byebug
   if at_css('purchname') or at_xpath('//purchID')
     true
   else
@@ -25,7 +25,7 @@ end
 
 def load_doc
   #byebug
-  @doc = Nokogiri::XML(@driver.find_element(css:'#phWorkZone_xmlData').attribute('outerHTML'), nil, 'UTF-8')
+  @doc = Nokogiri::XML(@driver.find_element(css:'#phWorkZone_xmlData').attribute('innerHTML'), nil, 'UTF-8')
 end
 
 def get_title

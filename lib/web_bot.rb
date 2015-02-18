@@ -12,7 +12,7 @@ class WebBot
 
   def initialize entity_name
     @entity_name = entity_name
-    load "./entities/#{entity_file_name}.rb"
+    load "./entities/#{entity_name}.rb"
     #p @source_name
     #load "./sources/#{@source_name}.rb"
     #load "/#{list_file}.rb"
