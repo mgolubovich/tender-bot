@@ -6,13 +6,17 @@ class WebBot
   extend Forwardable
   def_delegators(:@doc, :css, :at_css, :xpath, :at_xpath)
 
-  def initialize list_file_name
-    @list_name = list_file_name
-    load "./lists/#{list_file_name}.rb"
+  def load_doc
+    @doc = Nokogiri::HTML(@driver.find_element(css:'html').attribute('outerHTML'))
+  end
+
+  def initialize entity_name
+    @entity_name = entity_name
+    load "./entities/#{entity_file_name}.rb"
     #p @source_name
     #load "./sources/#{@source_name}.rb"
     #load "/#{list_file}.rb"
-    @logger = Logger.new("logs/#{list_file_name}.log", 10, 60 * 1024 * 1024)
+    @logger = Logger.new("logs/#{entity_name}.log", 10, 60 * 1024 * 1024)
     update_proxy_list
     next_proxy
   end
@@ -27,7 +31,7 @@ class WebBot
     while run_until > DateTime.now do
       begin
         get link + last_id.to_s
-        get_tender
+        get_tender(last_id)
         last_id -= 1
       rescue
         last_id -= 1
@@ -79,10 +83,6 @@ class WebBot
     end
   end
 
-  def load_doc
-    @doc = Nokogiri::HTML(@driver.find_element(css:'html').attribute('outerHTML'))
-  end
-
   def get link
     log "GET #{link}"
     @driver.navigate.to link
@@ -108,7 +108,7 @@ class WebBot
     log "Starting to collect entity #{@entity_name}"
   end
 
-  def get_tender
+  def get_tender(id_by_source)
     if tender_is_empty? then
       log 'тендер пуст'
       return nil
@@ -117,6 +117,7 @@ class WebBot
     tender = Tender.find_or_create_by(code_by_source: get_code, source_id: source_id)
     tender.source_link = @driver.current_url
     log "ссылка #{tender.source_link}"
+    tender.id_by_source = id_by_source
     tender.group = group
     log "group #{tender.group}"
     tender.title = get_title

@@ -7,8 +7,9 @@ require 'yaml'
 require 'open-uri'
 require 'forwardable'
 require 'byebug'
+require 'mongoid'
 
-require_relative './lib/web_bot.rb'
+require_relative 'lib/web_bot'
 
 Bundler.require
 

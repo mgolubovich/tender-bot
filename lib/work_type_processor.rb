@@ -35,7 +35,7 @@ class WorkTypeProcessor
   @supply_keys = YAML.load_file(WorkTypeProcessor.supply_fpath).keys
   @supply_keys += YAML.load_file(WorkTypeProcessor.supply_okdp_fpath).keys
   @service_keys = YAML.load_file(WorkTypeProcessor.service_fpath).keys
-
+  #byebug
   @exceptions = {
     without_dot: {
       1 => %w(451 452 453 454),
