@@ -13,12 +13,19 @@ class WebBot
   def initialize entity_name
     @entity_name = entity_name
     load "./entities/#{entity_name}.rb"
+    load_entity_config
     #p @source_name
     #load "./sources/#{@source_name}.rb"
     #load "/#{list_file}.rb"
     @logger = Logger.new("logs/#{entity_name}.log", 10, 60 * 1024 * 1024)
     update_proxy_list
     next_proxy
+  end
+
+  def load_entity_config
+    config = YAML.load_file("./entities/#{@entity_name}.yml")
+    @source_id = config['source_id']
+    @group = config['group'].to_sym
   end
 
   def run minutes
@@ -113,12 +120,12 @@ class WebBot
       log 'тендер пуст'
       return nil
     end
-    log "забираю тендер площадки #{@list_name}: #{get_code}, по адресу #{@driver.current_url}"
-    tender = Tender.find_or_create_by(code_by_source: get_code, source_id: source_id)
+    log "забираю тендер площадки #{@entity_name}: #{get_code}, по адресу #{@driver.current_url}"
+    tender = Tender.find_or_create_by(code_by_source: get_code, source_id: @source_id)
     tender.source_link = @driver.current_url
     log "ссылка #{tender.source_link}"
     tender.id_by_source = id_by_source
-    tender.group = group
+    tender.group = @group
     log "group #{tender.group}"
     tender.title = get_title
     log "title #{tender.title}"
