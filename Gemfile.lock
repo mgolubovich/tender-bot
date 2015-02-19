@@ -30,6 +30,7 @@ GEM
     connection_pool (2.1.1)
     debugger-linecache (1.2.0)
     ffi (1.9.6)
+    headless (1.0.2)
     hitimes (1.2.2)
     i18n (0.7.0)
     json (1.8.2)
@@ -75,6 +76,7 @@ DEPENDENCIES
   bson_ext
   byebug
   celluloid
+  headless
   mongoid
   mongoid_auto_increment
   mysql2

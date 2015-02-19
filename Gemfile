@@ -2,6 +2,8 @@ source 'http://rubygems.org/'
 
 gem 'activesupport'
 
+gem 'headless'
+
 gem 'mongoid'
 gem 'bson_ext'
 gem 'mongoid_auto_increment'

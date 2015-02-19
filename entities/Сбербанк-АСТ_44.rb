@@ -1,7 +1,7 @@
 
-def source_id; '5370b311a4c6e92e86000001' end
-
-def group; :'44' end
+set_source_id '5370b311a4c6e92e86000001'
+byebug
+group =:'44'
 
 def proxy_ok?
   at_css('a#linkToDefault')
@@ -29,8 +29,9 @@ end
 
 def get_start_at
   raw_xpath = "//td[contains(text(), 'Дата и время окончания срока подачи заявок')]/following::td[1]"
-  raw_data = at_xpath(raw_xpath).content
-  DateTime.strptime(raw_data,'%d.%m.%Y%H:%M')
+  raw_data = at_xpath(raw_xpath).content.match(/(\d\d\.\d\d\.\d\d\d\d)(.)(\d\d:\d\d)/)[0].gsub(/(\d\d\.\d\d\.\d\d\d\d)(.)(\d\d:\d\d)/, '\1 \3')
+  byebug
+  DateTime.strptime(raw_data,'%d.%m.%Y %H:%M')
 end
 
 def get_start_price
@@ -38,7 +39,7 @@ def get_start_price
 end
 
 def get_public_at
-  DateTime.strptime(at_css("td[content='leaf:chngdate']").content.strip, '%d.%m.%Y %H:%M')
+  DateTime.strptime(at_css("td[content='leaf:chngdate']").content.match(/(\d\d\.\d\d\.\d\d\d\d)(.)(\d\d:\d\d)/)[0].gsub(/(\d\d\.\d\d\.\d\d\d\d)(.)(\d\d:\d\d)/, '\1 \3'), '%d.%m.%Y %H:%M')
 end
 
 def get_tender_form

@@ -8,6 +8,7 @@ require 'open-uri'
 require 'forwardable'
 require 'byebug'
 require 'mongoid'
+require 'celluloid'
 
 require_relative 'lib/web_bot'
 

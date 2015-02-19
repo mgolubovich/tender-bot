@@ -3,11 +3,20 @@ require_relative 'work_type_processor'
 
 class WebBot
   #include Dsl
+  include Celluloid
+  attr_accessor :stop_run
+
   extend Forwardable
   def_delegators(:@doc, :css, :at_css, :xpath, :at_xpath)
+  finalizer :before_die
 
   def load_doc
     @doc = Nokogiri::HTML(@driver.find_element(css:'html').attribute('outerHTML'))
+  end
+
+  def before_die
+    @driver.quit if @driver
+    @headless.destroy if @headless
   end
 
   def initialize entity_name
@@ -17,9 +26,9 @@ class WebBot
     #p @source_name
     #load "./sources/#{@source_name}.rb"
     #load "/#{list_file}.rb"
-    @logger = Logger.new("logs/#{entity_name}.log", 10, 60 * 1024 * 1024)
-    update_proxy_list
-    next_proxy
+    @headless = Headless.new
+    @headless.start
+    @logger = ::Logger.new("logs/#{entity_name}.log", 10, 60 * 1024 * 1024)
   end
 
   def load_entity_config
@@ -29,6 +38,8 @@ class WebBot
   end
 
   def run minutes
+    update_proxy_list
+    next_proxy
     log "Start running bot for #{minutes} minutes minimum"
     run_until = (DateTime.now + minutes.minutes).to_datetime
     log run_until.to_s
@@ -36,11 +47,14 @@ class WebBot
     last_id = ids[:last_id]
     link = ids[:link]
     while run_until > DateTime.now do
+      break if @stop_run
       begin
         get link + last_id.to_s
         get_tender(last_id)
         last_id -= 1
-      rescue
+      rescue Exception => e
+        log e.message
+        #log e.backtrace.inspect
         last_id -= 1
         next
       end
@@ -50,7 +64,7 @@ class WebBot
 
   def log msg
     @logger.info msg
-    puts Time.new.strftime"%Y-%m-%d_%H-%M-%S" + '  ' + msg
+    puts Time.new.strftime"%Y-%m-%d_%H:%M:%S" + '  ' + msg
   end
 
   def update_proxy_list 
@@ -105,7 +119,7 @@ class WebBot
       log '404 Not Found'
     else
       log e.message
-      log e.backtrace.inspect
+      #log e.backtrace.inspect
     end
     next_proxy
     get link
